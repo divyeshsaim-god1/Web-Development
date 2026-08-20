@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calculator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1e1e24;
+            display: flex; /*Activates the CSS flexbox layout engine for everything inside the body*/
+            flex-direction: column; /*Aligns the elements inside the body verticallly from top to bottom.*/
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 50px;
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-weight: 400;
+            text-shadow: 0px 0px 20px rgba(251, 251, 251, 0.8);
+        }
+
+        .cal {
+            background-color: #000000;
+            padding: 20px;
+            border-radius: 50px;
+            /* Gives a glowing electric blue aura around the element */
+            box-shadow: 0px 0px 20px rgba(244, 242, 244, 0.6);
+            width: 340px;
+        }
+
+        .display-container {
+            margin-bottom: 20px;
+        }
+
+        .display-container input {
+            width: 100%;
+            height: 80px;
+            background-color: #000000;
+            border: none;
+            color: #ffffff;
+            font-size: 2.5rem;
+            text-align: right;
+            padding: 10px;
+            outline: none;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            height: 64px;
+            width: 64px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: filter 0.1s ease;
+        }
+
+        button:active {
+            filter: brightness(130%);
+        }
+
+        .num {
+            background-color: #333333;
+            color: #ffffff;
+        }
+
+        .sym {
+            background-color: #ff9f0a;
+            color: #040404;
+        }
+
+        .clear {
+            background-color: #fc0000;
+            color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <h1>CALCULATOR</h1>
+
+    <div class="cal">
+        <div class="display-container">
+            <input type="text" placeholder="0">
+        </div>
+        
+        <div class="button-grid">
+            <button class="clear">C</button>
+            <button>( )</button>
+            <button class="sym">%</button>
+            <button class="sym">/</button>
+            
+            <button class="num">1</button>
+            <button class="num">2</button>
+            <button class="num">3</button>
+            <button class="sym">+</button>
+        
+            <button class="num">4</button>
+            <button class="num">5</button>
+            <button class="num">6</button>
+            <button class="sym">-</button>
+        
+            <button class="num">7</button>
+            <button class="num">8</button>
+            <button class="num">9</button>
+            <button class="sym">x</button>
+        
+            <button class="num">+/-</button>
+            <button class="num">0</button>
+            <button class="num">.</button>
+            <button class="sym">=</button>
+        </div>
+    </div>
+
+        <script>
+        // Select the screen input field
+        const display = document.querySelector('.display-container input');
+        // Select all the calculator buttons
+        const buttons = document.querySelectorAll('.button-grid button');
+
+        // Track variables for calculations
+        let currentInput = "";
+        let shouldResetDisplay = false;
+
+        // Loop through every button and listen for clicks
+        buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                const value = button.innerText;
+
+                if (value === 'C') {
+                    // Reset everything (Clear)
+                    currentInput = "";
+                    display.value = "0";
+                } 
+                else if (value === '=') {
+                    // Run the calculation
+                    calculateResult();
+                } 
+                else if (value === '+/-') {
+                    // Toggle negative/positive state
+                    toggleSign();
+                } 
+                else if (value === '%') {
+                    // Turn current number into a percentage
+                    applyPercentage();
+                } 
+                else if (value === '( )') {
+                    // Handle bracket logic intelligently
+                    handleBrackets();
+                }
+                else {
+                    // Handle normal numbers and math symbols (+, -, /, x)
+                    handleInput(value);
+                }
+            });
+        });
+
+        // Function to process numbers and standard operators
+        function handleInput(value) {
+            // If the user just hit '=' on a previous calculation, clear screen on next number press
+            if (shouldResetDisplay && !isNaN(value)) {
+                currentInput = "";
+            }
+            shouldResetDisplay = false;
+
+            // Prevent starting with a plain math symbol (except minus)
+            if (currentInput === "" && ['+', '/', 'x', '%'].includes(value)) {
+                return;
+            }
+
+            // Prevent consecutive duplicate operator entries (e.g., ++ or //)
+            const lastChar = currentInput.slice(-1);
+            if (['+', '-', '/', 'x'].includes(lastChar) && ['+', '-', '/', 'x'].includes(value)) {
+                return; 
+            }
+
+            // Prevent entering multiple decimals in a single number block
+            if (value === '.') {
+                const parts = currentInput.split(/[\+\-\x\/]/);
+                const currentNumBlock = parts[parts.length - 1];
+                if (currentNumBlock.includes('.')) return;
+            }
+
+            currentInput += value;
+            display.value = currentInput;
+        }
+
+        // Function to compute the math expression safely
+        function calculateResult() {
+            if (currentInput === "") return;
+
+            try {
+                // Replace 'x' visual indicator with '*' code processor for math engine compatibility
+                let formattedExpression = currentInput.replace(/x/g, '*');
+
+                // Evaluate the expression string safely using Function constructor.
+                // Below is a function costructor that gets destroyed after the call
+                let result = new Function(`return ${formattedExpression}`)();
+
+                // Handle dividing by zero edge-case scenario
+                if (result === Infinity || result === -Infinity) {
+                    display.value = "Error";
+                    currentInput = "";
+                    return;
+                }
+
+                // Format the output number gracefully to avoid long floating decimal bugs (e.g., 0.1 + 0.2 = 0.30000000004)
+                if (result % 1 !== 0) {
+                    result = parseFloat(result.toFixed(8));
+                }
+
+                display.value = result;
+                currentInput = result.toString();
+                shouldResetDisplay = true; // Flag screen to clear on next numeric input
+            } catch (error) {
+                // Fallback state if user inputs syntax errors like (5+3*
+                display.value = "Error";
+                currentInput = "";
+            }
+        }
+
+        // Function to toggle between positive and negative values
+        function toggleSign() {
+            if (currentInput === "") return;
+
+            // Find the last number block typed to flip its sign independently
+            const regex = /([\+\-\*\/]?)([0-9\.]+)$/;
+            const match = currentInput.match(regex);
+
+            if (match) {
+                let operator = match[1];
+                let number = match[2];
+
+                // Remove the matched tail end from input string
+                currentInput = currentInput.substring(0, match.index);
+
+                if (operator === '-') {
+                    currentInput += '+';
+                } else if (operator === '+' || operator === '') {
+                    currentInput += '-';
+                } else {
+                    currentInput += operator + '-';
+                }
+                
+                currentInput += number;
+                display.value = currentInput;
+            }
+        }
+
+        // Function to quickly divide numbers by 100 for percentages
+        function applyPercentage() {
+            if (currentInput === "") return;
+            
+            try {
+                let formattedExpression = currentInput.replace(/x/g, '*');
+                let result = new Function(`return ${formattedExpression}`)() / 100;
+                
+                display.value = result;
+                currentInput = result.toString();
+            } catch {
+                display.value = "Error";
+                currentInput = "";
+            }
+        }
+
+        // Function to automatically decide whether to inject open '(' or close ')' brackets
+        function handleBrackets() {
+            const openCount = (currentInput.match(/\(/g) || []).length;
+            const closeCount = (currentInput.match(/\)/g) || []).length;
+            const lastChar = currentInput.slice(-1);
+
+            // If empty, or following an operator, add open bracket '('
+            if (currentInput === "" || ['+', '-', '/', 'x', '('].includes(lastChar)) {
+                currentInput += '(';
+            } 
+            // If there's an unclosed open bracket and the last item is a number, close it ')'
+            else if (openCount > closeCount && !isNaN(lastChar)) {
+                currentInput += ')';
+            } 
+            // Fallback default action 
+            else {
+                currentInput += '(';
+            }
+            display.value = currentInput;
+        }
+    </script>
+
+</body>
+</html>
