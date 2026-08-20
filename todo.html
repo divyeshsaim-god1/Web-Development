@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo</title>
+
+    <style>
+        * {
+            border: none;
+            margin: none;
+            font-family: 'Geist', monospace;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: white;
+            text-shadow: 0px 0px 10px rgb(0, 0, 0);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: rgb(40, 36, 36);
+        }
+
+        .card {
+            border-radius: 12px ;
+            height: 100vh;
+            width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgb(0, 0, 0);
+            box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.9);
+        }
+
+        input { 
+            outline: none;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            width: 100%;
+            height: 100%;
+            box-shadow: 0px 0px 10px grey;
+            padding-left: 15px;       /* Pushes the cursor away from the left border */
+            display: flex;            /* Enables flex alignment inside the input */
+            align-items: center;      /* Centers the cursor and text vertically */
+}
+        
+
+        input::placeholder {
+            color: black;
+        }
+
+        .input-display {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
+            /* border: 1px solid black; */
+            width: 100%;
+            padding: 20px;
+        }
+
+        button {
+            border-radius: 5px;
+            width: 70px;
+            height: 40px;
+            background-color: green;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0px 0px 10px rgba(170, 166, 166, 0.9);
+            cursor: pointer;
+        }
+
+        .task-display {
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        #task-list {
+            list-style-type: none;  /* removes standard default bullet dots */
+            padding: 0;
+            margin: 0;
+            width: 100%;
+        }
+
+        /* syling each individual list item when generated */
+        #task-list li {
+            background-color: rgb(40, 36, 36);
+            color: white;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            word-wrap: break-word;  /* prevents long text from breaking the card layout */
+            display: flex;
+            justify-content: space-between; /* pushes text to left, button to right*/
+            align-items: center; /* centers them vertically together */
+        }
+
+        .delete-btn {
+            background-color: rgb(190, 40, 40);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: none;  /* overrides the large green button glow */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .delete-btn:hover {
+            background-color: rgb(255, 0 ,0);
+        }
+
+        #clear-btn {
+            background-color: rgb(70, 70, 70);
+            color: white;
+            border-radius: 5px;
+            width: 120px;
+            height: 40px;
+            font-size: 16px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #clear-btn:hover {
+            background-color: rgb(190, 40, 40); /* turns red when we hover to alert user */
+        }
+
+        #task-list li span.completed {
+            text-decoration : line-through;
+            color : #888;
+        }
+
+        #task-list li span {
+            cursor: pointer;
+            flex: 1; /* makes the text container stretch to fill the row area */
+        }
+    </style>
+</head>
+
+
+
+
+
+
+
+<body>
+    <h1>TO-DO LIST</h1>
+    <div class="card">
+        <div class="input-display"> <!-- this class is used only for styling-->
+            <input type="text" id="inp" placeholder="Add new task"><br><br> <!--give an id to apply javascript.-->
+        </div>
+    <button id="add-btn">Add</button>
+
+    
+        <div class="task-display">
+            <!-- the parent list container needs an ID so JS can find it -->
+            <ul id="task-list">
+                <!-- hte new task <li> elements will be dynamically injected here -->
+            </ul>
+        </div>
+
+        <!-- button to clear all the tasks -->
+    <button id="clear-btn">Clear All</button>
+    </div>
+
+
+
+
+
+
+    <script>
+        const taskInput = document.querySelector('inp'); // user input
+        const addBtn = document.getElementById('add-btn'); // button object
+        const taskList = document.getElementById('task-list'); // reference the <ul>
+        const clearBtn = document.getElementById('clear-btn'); // reference clear button
+// test block----------------------------------------------------------------------------
+// BELOW IS ONLY FOR TEST
+        // adding an eventListener to check listen for button clicks
+        // addBtn.addEventListener('click', function() {
+        //     let enteredText = taskInput.value;
+
+        //     if (enteredText.trim() !== "") {
+        //         console.log("saved text :", enteredText);
+        //     }
+
+        //     taskInput.value = "";
+        // })
+// ---------------------------------------------------------------------------
+
+    
+
+    /*  ADDING TASKS
+       
+
+       const taskInput = document.querySelector('.input-display input');
+    const addBtn = document.getElementById('add-btn');
+    // 1. Reference the parent <ul> container
+    const taskList = document.getElementById('task-list');
+
+    addBtn.addEventListener('click', function() {
+        let enteredText = taskInput.value;
+
+        if (enteredText && enteredText.trim() !== "") {
+            console.log("saved text :", enteredText);
+            
+            // 2. Create a brand new <li> element inside the browser memory
+            const newTodoItem = document.createElement('li');
+            
+            // 3. Set the text content of the new <li> to your variable
+            newTodoItem.textContent = enteredText.trim();
+            
+            // 4. Physically append the new <li> element into your <ul> container
+            taskList.appendChild(newTodoItem);
+
+            taskInput.value = ""; // Clear the box for the next task
+        }
+    })
+      */
+
+            
+    /* ADDING A DELETE BUTTON
+
+        addBtn.addEventListener('click', () => {
+            let enteredText = taskInput.value ;
+
+            if (enteredText && enteredText.trim() !== "") {
+
+
+                // creating a brand new <li> element inside the browser memory
+                const newTodoItem = document.createElement('li');
+
+                // creating a <span> to safely hold just the task text
+                const taskTextSpan = document.createElement('span');
+                taskTextSpan.textContent = enteredText.trim();
+                newTodoItem.appendChild(taskTextSpan);
+
+                // create a delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = 'X';
+                deleteBtn.className = 'delete-btn'; // class for styling
+
+                // attaching the delete logic directly to THIS  speicific button
+                deleteBtn.addEventListener('click', () => {
+                    // 'remove()' compeltely deletes the element form the webpage layout
+                    newTodoItem.remove();
+                });
+
+                // append the button inside the <li>, then append <li> to the <ul>
+                newTodoItem.appendChild(deleteBtn);
+                taskList.appendChild(newTodoItem);
+
+                taskInput.value = "";
+
+                
+            }
+
+        });
+        */ 
+       
+    /*  ADD TASK WHEN USER PRESSES ON ENTER
+
+        // bundling the layout generetion code inside a reusable named function
+        function createNewTask() {
+            let enteredText = taskInput.value;
+
+            if (enteredText && enteredText.trim() !== "") {
+                const newTodoItem = document.createElement('li');
+
+                const taskTextSpan = document.createElement('span');
+                taskTextSpan.textContent = enteredText.trim();
+                newTodoItem.appendChild(taskTextSpan);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.textContent = "X";
+                deleteBtn.className = 'delete-btn';
+
+                deleteBtn.addEventListener('click', () => {
+                    newTodoItem.remove();
+                });
+
+                newTodoItem.appendChild(deleteBtn);
+                taskList.appendChild(newTodoItem);
+
+                taskInput.value = "";
+            }
+        }
+
+        // trigger funciton when clicking the add button
+        addBtn.addEventListener('click', createNewTask);
+
+        // trigger funciton when pressing the 'Enter' key inside the text box
+        taskInput.addEventListener('keydown', (event) => {
+            // 'event.key' contains the literal string name of the key pressed
+            if (event.key === "Enter") {
+                createNewTask();
+            }
+        });
+
+        */
+
+
+    /* LOCAL STORAGE TO SAVE TASKS AND CLEAR ALL BUTTON
+
+
+        
+        // load tasks on page start
+        // Run this function immediately when the webpage loads
+        loadTasksFromStorage();
+
+        function createNewTask() {
+            let enteredText = taskInput.value;
+
+            if (enteredText && enteredText.trim() !== "") {
+                
+                // render the task on the screen
+                addTaskToDOM(enteredText.trim());
+
+                // save the updated list to local storage
+                saveTasksToStorage();
+
+                taskInput.value = "";
+            }
+        }
+
+        // helper function : physically puts a task item onto the page
+        function addTaskToDOM(text) {
+            const newTodoItem = document.createElement('li');
+
+            const taskTextSpan = document.createElement('span');
+            taskTextSpan.textContent = text;
+            newTodoItem.appendChild(taskTextSpan);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.textContent = 'X';
+            deleteBtn.className = 'delete-btn';
+
+            deleteBtn.addEventListener('click', () => {
+                newTodoItem.remove();
+                saveTasksToStorage(); // save list state again after deleting an item
+            });
+
+            newTodoItem.appendChild(deleteBtn);
+            taskList.append(newTodoItem);
+        }
+
+        // Local storage: Save all current screen tasks into an array
+        function saveTasksToStorage() {
+            const tasks = [];
+            // grab all the text spans inside our live list items
+            const allTaskSpans = taskList.querySelectorAll('li span');
+
+            allTaskSpans.forEach((span) => {
+                tasks.push(span.textContent);
+            });
+
+            // local storage can only save text strings, so we convert the array into text using JSON.stringify
+            localStorage.setItem('myTodoList', JSON.stringify(tasks));
+        }
+
+        // local sorage: read text back out of memory and turn it into list items
+        function loadTasksFromStorage() {
+            const savedData = localStorage.getItem('myTodoList');
+
+            if (savedData) {
+                // convert the text string back into a working JS array
+                const tasks = JSON.parse(savedData);
+
+                tasks.forEach((taskText) => {
+                    addTaskToDOM(taskText); // Rebuild each item on screen
+                });
+            }
+        }
+        
+
+        // clear all logic
+        clearBtn.addEventListener('click', () => {
+            // completely empties out everyting inside the <ul> tag
+            taskList.innerHTML = "";
+
+            // wipe the specific key out of your browser's local storage memory
+            localStorage.removeItem('myTodoList');
+        });
+
+        // event listeners for add action
+        addBtn.addEventListener('click', createNewTask);
+        taskInput.addEventListener('keydown', (event) => {
+            if (event.key === "Enter") {
+                createNewTask();
+            }
+        });
+
+        */
+    
+    // CHECKBOX STRIKETHROUGH
+    // Load tasks on startup
+    loadTasksFromStorage();
+
+    function createNewTask() {
+        let enteredText = taskInput.value;
+
+        if (enteredText && enteredText.trim() !== "") {
+            // render a fresh task as UNCOMPLETED (false) by default
+            addTaskToDOM(enteredText.trim(), false);
+            saveTasksToStorage();
+        }
+        
+        // FIX: Moved outside the "if" block to guarantee the box clears 
+        // even if the user typed accidental empty spaces
+        taskInput.value = "";
+        taskInput.focus(); // Keeps the blinking cursor ready for the next task
+    }
+
+    // HELPER FUNCTION: Accepts a 'isCompleted' status parameter
+    function addTaskToDOM(text, isCompleted) {
+        const newTodoItem = document.createElement('li');
+
+        const taskTextSpan = document.createElement('span');
+        taskTextSpan.textContent = text;
+        
+        // If the task was loaded from memory as completed, apply the class immediately
+        if (isCompleted) {
+            taskTextSpan.classList.add('completed');
+        }
+
+        // Add strike feature on click
+        taskTextSpan.addEventListener('click', () => {
+            taskTextSpan.classList.toggle('completed');
+            saveTasksToStorage();  // Save updated true/false states
+        });
+
+        newTodoItem.appendChild(taskTextSpan);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = 'X';
+        deleteBtn.className = 'delete-btn';
+
+        deleteBtn.addEventListener('click', () => {
+            newTodoItem.remove();
+            saveTasksToStorage();
+        });
+
+        newTodoItem.appendChild(deleteBtn);
+        taskList.appendChild(newTodoItem);
+    }
+
+    // LOCAL STORAGE: Save text AND completion state as objects
+    function saveTasksToStorage() {
+        const tasks = [];
+        const allTaskItems = taskList.querySelectorAll('li');
+
+        allTaskItems.forEach((li) => {
+            const span = li.querySelector('span');
+            
+            // FIX: Changed 'task.push' to 'tasks.push' to match your array name
+            tasks.push({
+                text: span.textContent,
+                completed: span.classList.contains('completed') 
+            });
+        });
+
+        localStorage.setItem('myTodoList', JSON.stringify(tasks));
+    }
+
+    // LOCAL STORAGE: Load objects back out of memory
+    function loadTasksFromStorage() {
+        const savedData = localStorage.getItem('myTodoList');
+
+        if (savedData) {
+            const tasks = JSON.parse(savedData);
+
+            tasks.forEach((taskObj) => {
+                addTaskToDOM(taskObj.text, taskObj.completed);
+            });
+        }
+    }
+
+    // Clear all logic
+    clearBtn.addEventListener('click', () => {
+        taskList.innerHTML = "";
+        localStorage.removeItem('myTodoList');
+    });
+
+    // Event triggers
+    addBtn.addEventListener('click', createNewTask);
+    taskInput.addEventListener('keydown', (event) => {
+        if (event.key === "Enter") {
+            createNewTask();
+        }
+    });
+    </script>
+
+</body>
+</html>
