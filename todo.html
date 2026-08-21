@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Todo</title>
 
-    <style>
+        <style>
         * {
             border: none;
-            margin: none;
+            margin: 0;          /* FIX: Changed from 'none' to '0' */
+            padding: 0;         /* ADDED: Cleans default list and page spacing browser padding */
             font-family: 'Geist', monospace;
             box-sizing: border-box;
         }
@@ -16,25 +17,40 @@
         h1 {
             color: white;
             text-shadow: 0px 0px 10px rgb(0, 0, 0);
+            margin-top: 40px;   /* ADDED: Pushes the title cleanly away from top of window */
+            margin-bottom: 20px;/* ADDED: Separation space between title and card wrapper */
         }
 
         body {
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start; /* FIX: Changed from center to prevent content clipping on small screens */
             align-items: center;
             background-color: rgb(40, 36, 36);
+            min-height: 100vh;  /* ADDED: Makes sure background canvas covers whole screen height */
         }
 
-        .card {
-            border-radius: 12px ;
-            height: 100vh;
+         .card {
+            border-radius: 12px;
             width: 400px;
             display: flex;
             flex-direction: column;
             align-items: center;
             background-color: rgb(0, 0, 0);
             box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.9);
+            padding-bottom: 20px;
+
+            /* ─── ADD THESE THREE LINES TO LOCK THE CARD HEIGHT ─── */
+            max-height: 80vh;    /* Prevents the card from ever growing taller than 80% of the screen */
+            overflow: hidden;    /* Prevents child elements from spilling out of the card borders */
+        }
+
+
+        /* FIX: Explicit layout bounds for input field container */
+        .input-display {
+            width: 100%;
+            padding: 20px;
+            height: 80px;       /* FIX: Gives a set track height so input's 100% height value works */
         }
 
         input { 
@@ -45,21 +61,13 @@
             width: 100%;
             height: 100%;
             box-shadow: 0px 0px 10px grey;
-            padding-left: 15px;       /* Pushes the cursor away from the left border */
-            display: flex;            /* Enables flex alignment inside the input */
-            align-items: center;      /* Centers the cursor and text vertically */
-}
-        
-
-        input::placeholder {
-            color: black;
+            padding-left: 15px;       
+            display: flex;            
+            align-items: center;      
         }
 
-        .input-display {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif ;
-            /* border: 1px solid black; */
-            width: 100%;
-            padding: 20px;
+        input::placeholder {
+            color: gray;        /* FIX: Swapped black for gray to make placeholder readable against white background */
         }
 
         button {
@@ -71,21 +79,45 @@
             font-size: 20px;
             box-shadow: 0px 0px 10px rgba(170, 166, 166, 0.9);
             cursor: pointer;
+            margin-bottom: 20px; /* ADDED: Pushes input area cleanly away from task list below */
         }
 
         .task-display {
             width: 100%;
             padding: 0 20px;
+
+            /* ─── ADD THESE THREE LINES TO CREATE THE SCROLL TRACK ─── */
+            flex: 1;             /* Forces the task container to occupy all remaining middle area space */
+            overflow-y: auto;    /* Spawns an internal vertical scrollbar automatically when tasks fill it */
+            margin-bottom: 10px; /* Separation buffer space between list bottom and task counter text */
+        }
+
+         /* OPTIONAL: Custom scrollbar wrapper engine to match your application's dark aesthetic */
+        .task-display::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .task-display::-webkit-scrollbar-track {
+            background: rgb(0, 0, 0);
+        }
+
+        .task-display::-webkit-scrollbar-thumb {
+            background-color: rgb(70, 70, 70);
+            border-radius: 10px;
+        }
+
+        .task-display::-webkit-scrollbar-thumb:hover {
+            background-color: rgb(100, 100, 100);
         }
 
         #task-list {
-            list-style-type: none;  /* removes standard default bullet dots */
+            list-style-type: none;  
             padding: 0;
             margin: 0;
             width: 100%;
         }
 
-        /* syling each individual list item when generated */
+        /* FIX: Consolidated multi-declaration target block for task element layout */
         #task-list li {
             background-color: rgb(40, 36, 36);
             color: white;
@@ -93,10 +125,28 @@
             margin-bottom: 10px;
             border-radius: 6px;
             font-size: 1.1rem;
-            word-wrap: break-word;  /* prevents long text from breaking the card layout */
+            word-wrap: break-word;  
             display: flex;
-            justify-content: space-between; /* pushes text to left, button to right*/
-            align-items: center; /* centers them vertically together */
+            justify-content: space-between; 
+            align-items: center; 
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        #task-list li.fade-out {
+            opacity: 0;
+            transform: translateX(30px);  
+        }
+
+        #task-list li span {
+            cursor: pointer;
+            flex: 1; 
+        }
+
+        #task-list li span.completed {
+            text-decoration : line-through;
+            color : #888;
         }
 
         .delete-btn {
@@ -109,7 +159,7 @@
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: none;  /* overrides the large green button glow */
+            box-shadow: none;  
             display: flex;
             justify-content: center;
             align-items: center;
@@ -117,6 +167,13 @@
 
         .delete-btn:hover {
             background-color: rgb(255, 0 ,0);
+        }
+
+        #task-counter {
+            color: #bbb;
+            font-size: 0.95rem;
+            margin-top: 15px;
+            font-family: 'Geist', monospace;
         }
 
         #clear-btn {
@@ -127,25 +184,15 @@
             height: 40px;
             font-size: 16px;
             margin-top: 20px;
-            margin-bottom: 20px;
             cursor: pointer;
             transition: background 0.2s;
         }
 
         #clear-btn:hover {
-            background-color: rgb(190, 40, 40); /* turns red when we hover to alert user */
-        }
-
-        #task-list li span.completed {
-            text-decoration : line-through;
-            color : #888;
-        }
-
-        #task-list li span {
-            cursor: pointer;
-            flex: 1; /* makes the text container stretch to fill the row area */
+            background-color: rgb(190, 40, 40); 
         }
     </style>
+
 </head>
 
 
@@ -166,24 +213,23 @@
         <div class="task-display">
             <!-- the parent list container needs an ID so JS can find it -->
             <ul id="task-list">
-                <!-- hte new task <li> elements will be dynamically injected here -->
+                <!-- the new task <li> elements will be dynamically injected here -->
             </ul>
         </div>
+
+        <!-- task counter display -->
+         <div id="task-counter">0 of 0 tasks completed</div>
 
         <!-- button to clear all the tasks -->
     <button id="clear-btn">Clear All</button>
     </div>
-
-
-
-
-
-
+<!-- ########################################################################################################################################################################### -->
     <script>
         const taskInput = document.getElementById('inp'); // user input
         const addBtn = document.getElementById('add-btn'); // button object
         const taskList = document.getElementById('task-list'); // reference the <ul>
         const clearBtn = document.getElementById('clear-btn'); // reference clear button
+        const counterDisplay = document.getElementById('task-counter'); // reference counter
 // test block----------------------------------------------------------------------------
 // BELOW IS ONLY FOR TEST
         // adding an eventListener to check listen for button clicks
@@ -198,9 +244,8 @@
         // })
 // ---------------------------------------------------------------------------
 
-    
 
- 
+
     // Load tasks on startup
     loadTasksFromStorage();
 
@@ -235,6 +280,7 @@
         taskTextSpan.addEventListener('click', () => {
             taskTextSpan.classList.toggle('completed');
             saveTasksToStorage();  // Save updated true/false states
+            updateTaskCounter(); // recalculate counter when an item is checked
         });
 
         newTodoItem.appendChild(taskTextSpan);
@@ -243,14 +289,36 @@
         deleteBtn.textContent = 'X';
         deleteBtn.className = 'delete-btn';
 
+        // FAde out animation logic
         deleteBtn.addEventListener('click', () => {
-            newTodoItem.remove();
-            saveTasksToStorage();
+            // Adding the CSS class to kick off the 0.4s fade transition
+            newTodoItem.classList.add('fade-out');
+
+            // wait for 400 milliseconds for the visual animation  to finish before clearing from HTML
+            setTimeout(() => {
+                newTodoItem.remove();
+                saveTasksToStorage();
+                updateTaskCounter(); // recalculate counter after element leaves DOM
+            }, 400);
         });
+
+        
 
         newTodoItem.appendChild(deleteBtn);
         taskList.appendChild(newTodoItem);
+
+        // update the counter text anytime a new item joins the DOM layout
+        updateTaskCounter();
     }
+
+    // New funciton: calculates totals and rewrites the ocutner message
+    function updateTaskCounter() {
+        const totalTasks = taskList.querySelectorAll('li').length;
+        const completedTasks = taskList.querySelectorAll('li span.completed').length;
+
+        counterDisplay.textContent = `${completedTasks} of ${totalTasks} tasks completed`;
+    }
+
 
     // LOCAL STORAGE: Save text AND completion state as objects
     function saveTasksToStorage() {
@@ -260,7 +328,7 @@
         allTaskItems.forEach((li) => {
             const span = li.querySelector('span');
             
-            // FIX: Changed 'task.push' to 'tasks.push' to match your array name
+           
             tasks.push({
                 text: span.textContent,
                 completed: span.classList.contains('completed') 
@@ -281,12 +349,21 @@
                 addTaskToDOM(taskObj.text, taskObj.completed);
             });
         }
+        updateTaskCounter(); // render initial calculation based on saved cache load
     }
 
     // Clear all logic
     clearBtn.addEventListener('click', () => {
-        taskList.innerHTML = "";
-        localStorage.removeItem('myTodoList');
+        // applying fade-out class to all items together for a coll mass wipe effect
+        const allItems = taskList.querySelectorAll('li');
+        allItems.forEach(li => li.classList.add('fade-out'));
+
+        setTimeout(() => {
+            taskList.innerHTML = "";
+            localStorage.removeItem('myTodoList');
+            updateTaskCounter();
+        }, 400);
+        
     });
 
     // Event triggers
