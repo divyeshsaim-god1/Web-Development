@@ -80,7 +80,90 @@
 
 
     <script>
+        // Generateing a random number between 2 and 100
+        let secretNumber = Math.floor(Math.random() * 100) + 1;
+        let attemptsCount = 0;
+        let guessHistory = []; // Array to store past guesses
+        const inputElement = document.getElementById('guessInput'); // making the input object global
         
+        function checkGuess() {
+            
+            const userGuess = Number(inputElement.value);
+            const feedback = document.getElementById('feedback');
+            const attempts = document.getElementById('attempts');
+
+            // Input validation (condition)
+            if (!userGuess || userGuess < 1 || userGuess > 100) {
+                feedback.textContent = "Please enter a valid number between 1 and 100!";
+                feedback.style.color = "#ff6b6b";
+                return ;
+            }
+
+            // Increment attempts
+            attemptsCount++;
+            guessHistory.push(userGuess); // Add guess to array
+
+            // Check the guess (conditions)
+            if (userGuess === secretNumber) {
+                feedback.textContent = `Correct! The number was ${secretNumber}!`;
+                feedback.style.color = "#4caf50";
+                endGame();
+
+            }
+            else if (userGuess > secretNumber) {
+                feedback.textContent = "Too high! Try again";
+                feedback.style.color = "#e5c07b";
+            }
+            else {
+                feedback.textContent = "Too low! Try again";
+                feedback.style.color = "#e5c07b";
+            }
+
+
+
+            // Update attempts text using a loop to display guess history
+            let historyText = "Previous guesses: ";
+            for (let i = 0; i < guessHistory.length; i++) {
+                historyText += guessHistory[i] + (i < guessHistory.length - 1 ? ", " : "");
+            }
+
+            attempts.textContent = `Attempts: ${attemptsCount} | ${historyText}`;
+
+            // Clear input field for the next guess
+            inputElement.value = "";
+        }
+
+        function endGame() {
+            // Disable input and ugess button when won
+            document.getElementById('guessInput').disabled = true;
+            document.getElementById('guessBtn').disabled = true;
+            // Show restart button
+            document.getElementById('restartBtn').style.display = "inline-block";
+        }
+
+        function resetGame() {
+            // Reset variables
+            secretNumber = Math.floor(Math.random() * 100) + 1;
+            attemptsCount = 0;
+            guessHistory = [];
+        
+
+
+        // Reset UI elements
+        document.getElementById('guessInput').disabled = false;
+        document.getElementById('guessBtn').disabled = false;
+        document.getElementById('guessInput').value = "";
+        document.getElementById('feedback').textContent = "";
+        document.getElementById('attempts').textContent = "Attempts: 0";
+        document.getElementById('restartBtn').style.sisplay = "none"
+        }
+
+        // Guessing the number by preessing enter
+        inputElement.addEventListener('keydown', (event) => {
+            if(event.key === "Enter") {
+                checkGuess();
+            }
+        });
     </script>
 </body>
 </html>
