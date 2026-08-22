@@ -163,6 +163,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            margin-top: 12px;
         }
 
         .delete-btn:hover {
@@ -190,6 +191,11 @@
 
         #clear-btn:hover {
             background-color: rgb(190, 40, 40); 
+        }
+
+        .edit-btn {
+            margin-left: 15px;
+            margin-top: 12px;
         }
     </style>
 
@@ -302,9 +308,27 @@
             }, 400);
         });
 
+        // adding an edit button
+        const editBtn = document.createElement('button');
+        editBtn.textContent = "edit";
+        editBtn.className = 'edit-btn';
+
+        // edit button logic
+        editBtn.addEventListener('click', () => {
+            const currentText = taskTextSpan.textContent;
+            const updatedText = prompt("Edit your task: ", currentText);
+
+            // Ensure user didn't hit 'cancel' (null) and didn't leave it blank
+            if (updatedText !== null && updatedText.trim() !== "") {
+                taskTextSpan.textContent = updatedText.trim();
+                saveTasksToStorage(); // Update LocalStorage with then new text
+            }
+        });
+
         
 
         newTodoItem.appendChild(deleteBtn);
+        newTodoItem.appendChild(editBtn);
         taskList.appendChild(newTodoItem);
 
         // update the counter text anytime a new item joins the DOM layout
@@ -318,6 +342,8 @@
 
         counterDisplay.textContent = `${completedTasks} of ${totalTasks} tasks completed`;
     }
+
+
 
 
     // LOCAL STORAGE: Save text AND completion state as objects

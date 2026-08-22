@@ -1,2 +1,2 @@
 # Web-Development
-learning web development
+learning web development by building projects
