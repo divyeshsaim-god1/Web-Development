@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Clock</title>
+
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .clock-container {
+            text-align: center;
+            background: #222 ;
+            padding: 30px 50px;
+            border-radius: 10px;
+            box-shadow:  0 0 20px rgba(0, 255, 204, 0.2);
+        }
+
+        #clock {
+            font-size: 3rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+        }
+
+        #date {
+            margin-top: 10px;
+            font-size: 1.2rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="clock-contianer">
+        <div id="clock">00:00:00</div>
+        <div id="date">Loading date...</div>
+    </div>
+
+
+<script>
+
+    function updateClock() {
+  const now = new Date();
+
+  // Get raw hours (0-23)
+  let rawHours = now.getHours();
+
+  // Determine AM or PM
+  const ampm = rawHours >= 12 ? 'PM' : 'AM';
+
+  // Convert 24-hour time to 12-hour time
+  // (0 becomes 12 for midnight, 13 becomes 1)
+  let hours = rawHours % 12 || 12;
+
+  // Format hours, minutes, and seconds with leading zeros
+  hours = String(hours).padStart(2, '0');
+  let minutes = String(now.getMinutes()).padStart(2, '0');
+  let seconds = String(now.getSeconds()).padStart(2, '0');
+
+  // Display time with AM/PM
+  document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds} ${ampm}`;
+
+  // Extract and display date
+  const options = { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' };
+  document.getElementById('date').textContent = now.toLocaleDateString('en-US', options);
+}
+
+// Call once immediately to avoid a 1-second display delay
+updateClock();
+
+// Update every second
+setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
