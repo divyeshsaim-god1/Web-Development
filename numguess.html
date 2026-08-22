@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Guessing Game</title>
+
+
+    <style>
+        body {
+            background-color: #282c34;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .game-container {
+            background: #3a3f4b;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            width: 300px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        input[type="number"] {
+            width: 80%;
+            padding: 8px;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: none;
+        }
+
+        button {
+            padding: 8px 16px;
+            font-size: 1rem;
+            cursor: pointer;
+            background-color: #61dafb;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        #feedback {
+            margin-top: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        #attempts {
+            margin-top: 5px;
+            color: #bbb;
+        }
+
+        #restartBtn {
+            margin-top: 15px;
+            background-color: #4caf50;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+    <h1>Guess The Number</h1>
+    <p>I'm thinking of a number between 1 and 100.</p>
+
+    <input type="number" id="guessInput" placeholder="Enter number..." min="1" max="100">
+    <button id="guessBtn" onclick="checkGuess()">Guess</button>
+
+    <div id="feedback"></div>
+    <div id="attempts">Attempts: 0</div>
+
+    <button id="restartBtn" onclick="resetGame()" style="display: none;">Play Again</button>
+    </div>
+
+
+    <script>
+        
+    </script>
+</body>
+</html>
